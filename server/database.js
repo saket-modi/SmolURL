@@ -6,17 +6,9 @@ const crypto = require('node:crypto');
 const HASH = true;
 
 // exported
-async function connectDB() {
-    try {
-        await mongoose.connect(process.env.MONGODB_KEY);
-        console.log("connected to mongodb!");
-    } catch(err) {
-        console.log("error:" , err.message);
-    }
-}
 async function lookUp(short) {
     // look up the url then return if found
-    const urlEntry = await urlModel.find({ "short": short });
+    const urlEntry = await urlModel.findOne({ "short": short });
     if (!urlEntry) {
         return false;
     }
@@ -26,10 +18,10 @@ async function lookUp(short) {
 // internal
 async function createEntry(url) {
     const nonce = crypto.randomBytes(32).toString('base64');
-    const short = getShortened(url, HASH);
+    let short = getShortened(url, HASH);
 
-    while (lookUp(short)) {
-        url += append(nonce);
+    while (await lookUp(short)) {
+        url += nonce;
         short = getShortened(url, HASH);
     }
 
@@ -52,7 +44,7 @@ function getHash(url) {
 }
 // shortening using Base62
 function getBase62(url) {
-
+    // TODO: implement
 }
 
-export default { connectDB, lookUp };
+module.exports = { lookUp, createEntry };
