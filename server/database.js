@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 const urlModel = require('./models/url.js');
-const crypo = require('crypto');
+const crypto = require('node:crypto');
 
 const HASH = true;
 
@@ -18,14 +18,21 @@ async function lookUp(short) {
     // look up the url then return if found
     const urlEntry = await urlModel.find({ "short": short });
     if (!urlEntry) {
-        return {};
+        return false;
     }
     return urlEntry;
 }
 
 // internal
 async function createEntry(url) {
+    const nonce = crypto.randomBytes(32).toString('base64');
     const short = getShortened(url, HASH);
+
+    while (lookUp(short)) {
+        url += append(nonce);
+        short = getShortened(url, HASH);
+    }
+
     const urlEntry = new urlModel({ "url": url, "short": short});
     return (await urlEntry.save());
 }
