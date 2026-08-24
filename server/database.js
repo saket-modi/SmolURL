@@ -13,8 +13,6 @@ async function connectDB() {
 }
 async function lookUp(url) {
     // look up the url then return if found
-    // status codes: 301 -> permanently moved => cache the actual long url in the browser
-    // 302 -> temp moved; go through the shortening service
     const urlEntry = await urlModel.find({ "url": url });
     if (!urlEntry) {
         urlEntry = await createEntry(url);
