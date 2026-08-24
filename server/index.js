@@ -1,5 +1,7 @@
+// ref: https://bytebytego.com/courses/system-design-interview/design-a-url-shortener
 const express = require('express');
 const app = express.app();
+const { connectDB, lookUp } = require('./database');
 
 app.post('/api/url/create', (req, res) => {
     /*
