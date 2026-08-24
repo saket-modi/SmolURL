@@ -3,6 +3,7 @@ const express = require('express');
 const app = express.app();
 const { connectDB, lookUp, createEntry } = require('./database');
 
+app.use(express.json());
 await connectDB();
 
 app.post('/api/create/:uri', (req, res) => {
