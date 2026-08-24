@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 require('dotenv').config();
 const urlModel = require('./models/url.js');
 const crypto = require('node:crypto');
