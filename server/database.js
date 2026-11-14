@@ -29,10 +29,10 @@ async function createEntry(url) {
     if (urlEntry = await lookUp(url, LOOKUP_LONGURL)) {
         // already been shortened
         //console.log(`returning stored entry`);
-        return urlEntry;
+        return [urlEntry, false];
     }
 
-    if(!(await verifyUrl(url))) return false;
+    if(!(await verifyUrl(url))) return [false, false];
 
     const nonce = crypto.randomBytes(32).toString('base64');
     let short = getShortened(url);
@@ -44,7 +44,7 @@ async function createEntry(url) {
 
     urlEntry = new urlModel({ "url": url, "short": short});
     await urlEntry.save();
-    return urlEntry;
+    return [urlEntry, true];
 }
 
 // url shortening logic

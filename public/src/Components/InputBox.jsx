@@ -12,10 +12,9 @@ export default function InputBox() {
     //     console.log(`set val to: ${inputValue}`);
     // }, 1000);
 
-    function handleInput() {
-        // TODO: add input validation for inputValue (no whitespaces)
+    async function handleInput() {
         // Send request to --> /api/:url 
-        fetch(SERVER_URL + `/api/` + inputValue, {
+        fetch(`${SERVER_URL}/api/${inputValue}`, {
             method: "POST"
         }).then((response) => {
             if (!response.ok) { // 404, 500, etc. handled

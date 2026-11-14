@@ -29,12 +29,17 @@ app.get('/api/health', (req, res) => {
 // create new short link
 app.post('/api/:uri', async (req, res) => {
     // handles requests where the uri already exists in db
-    const urlEntry = await createEntry(req.params.uri);
+    const [urlEntry, newCreated] = await createEntry(req.params.uri);
     if (!urlEntry) {
         // bad url
         return res.status(400).send(`misformatted url or destination does not exist.`);
     }
-    return res.status(201).json(urlEntry);
+    if (newCreated) res.status(201);
+    else {
+        //console.log(`relayed old saved data.`);
+        res.status(200);
+    }
+    return res.json(urlEntry);
 });
 
 // redirect short to long url
