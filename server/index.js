@@ -22,13 +22,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // create new short link
-app.post('/api/create/:uri', async (req, res) => {
+app.post('/api/:uri', async (req, res) => {
     const urlEntry = await createEntry(req.params.uri);
     return res.status(201).json(urlEntry);
 });
 
 // redirect short to long url
-app.get('/api/url/:uri', async (req, res) => {
+app.get('/api/:uri', async (req, res) => {
     const urlEntry = await lookUp(req.params.uri);
     if (!urlEntry) {
         return res.status(404).send(`URL not found.`);
@@ -42,7 +42,7 @@ app.get('/api/url/:uri', async (req, res) => {
 
     // status codes: 301 -> permanently moved => cache the actual long url in the browser
     // 302 -> temp moved; go through the shortening service
-    return res.redirect(301, targetUrl);
+    return res.redirect(302, targetUrl);
 });
 
 const PORT = process.env.PORT || 4857;
