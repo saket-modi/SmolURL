@@ -26,7 +26,8 @@ async function createEntry(url) {
     var urlEntry
     if (urlEntry = await lookUp(url, LOOKUP_LONGURL)) {
         // already been shortened
-        return false;
+        //console.log(`returning stored entry`);
+        return urlEntry;
     }
     const nonce = crypto.randomBytes(32).toString('base64');
     let short = getShortened(url);

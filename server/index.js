@@ -1,10 +1,15 @@
 // ref: https://bytebytego.com/courses/system-design-interview/design-a-url-shortener
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const { lookUp, createEntry } = require('./database');
+const { verifyUrl, sanitizeUrl } = require('./util');
 
 app.use(express.json());
+app.use(cors({
+    origin: `http://localhost:5173`
+}));
 
 // connect to db
 (async () => {
@@ -23,7 +28,13 @@ app.get('/api/health', (req, res) => {
 
 // create new short link
 app.post('/api/:uri', async (req, res) => {
-    const urlEntry = await createEntry(req.params.uri);
+    // handles requests where the uri already exists in db
+    var targetUrl = verifyUrl(req.params.uri);
+    if (!targetUrl) {
+        // bad url
+        return res.status(400).send(`misformatted url or destination does not exist.`);
+    }
+    const urlEntry = await createEntry(targetUrl);
     return res.status(201).json(urlEntry);
 });
 
@@ -34,11 +45,7 @@ app.get('/api/:uri', async (req, res) => {
         return res.status(404).send(`URL not found.`);
     }
 
-    var targetUrl = urlEntry.url;
-    // add http to url if not present
-    if (!/^http?:\/\//i.test(targetUrl)) {
-        targetUrl = `http://${targetUrl}`;
-    }
+    var targetUrl = sanitizeUrl(urlEntry.url);
 
     // status codes: 301 -> permanently moved => cache the actual long url in the browser
     // 302 -> temp moved; go through the shortening service
