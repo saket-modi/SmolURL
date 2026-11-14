@@ -2,6 +2,8 @@ require('dotenv').config();
 const urlModel = require('./models/url.js');
 const crypto = require('node:crypto');
 
+const { verifyUrl } = require('./util.js');
+
 // constants
 const LOOKUP_LONGURL = false;
 
@@ -29,6 +31,9 @@ async function createEntry(url) {
         //console.log(`returning stored entry`);
         return urlEntry;
     }
+
+    if(!(await verifyUrl(url))) return false;
+
     const nonce = crypto.randomBytes(32).toString('base64');
     let short = getShortened(url);
 

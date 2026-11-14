@@ -1,4 +1,4 @@
-function verifyUrl(url) { // check if url string is clean, else return false
+async function verifyUrl(url) { // check if url string is clean, else return false
 
     if (/\s/.test(url)) {
         // any whitespace given by \s meta
@@ -6,19 +6,9 @@ function verifyUrl(url) { // check if url string is clean, else return false
     }
 
     // check if the url leads to a valid status code
-    var valid = true;
-    fetch(url).then(
-        (response) => {
-            if (!response.ok) {
-                valid = false;
-            }
-        }
-    ).catch(err => {
-        console.log(`error: ${err}`);
-    })
-    if (!valid) return false;
-
-    return true;
+    return fetch(url, {method: `HEAD`})
+    .then(response => response.ok)
+    .catch(() => false)
 }
 
 function sanitizeUrl(url) {

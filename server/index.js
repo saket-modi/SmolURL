@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const { lookUp, createEntry } = require('./database');
-const { verifyUrl, sanitizeUrl } = require('./util');
+const { sanitizeUrl } = require('./util');
 
 app.use(express.json());
 app.use(cors({
@@ -29,12 +29,11 @@ app.get('/api/health', (req, res) => {
 // create new short link
 app.post('/api/:uri', async (req, res) => {
     // handles requests where the uri already exists in db
-    var targetUrl = verifyUrl(req.params.uri);
-    if (!targetUrl) {
+    const urlEntry = await createEntry(req.params.uri);
+    if (!urlEntry) {
         // bad url
         return res.status(400).send(`misformatted url or destination does not exist.`);
     }
-    const urlEntry = await createEntry(targetUrl);
     return res.status(201).json(urlEntry);
 });
 
