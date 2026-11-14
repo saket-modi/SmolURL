@@ -2,12 +2,19 @@ require('dotenv').config();
 const urlModel = require('./models/url.js');
 const crypto = require('node:crypto');
 
-const HASH = true;
+// constants
+const LOOKUP_LONGURL = false;
 
 // exported
-async function lookUp(short) {
-    // look up the url then return if found
-    const urlEntry = await urlModel.findOne({ "short": short });
+async function lookUp(res, lookUpShort=true) {
+    var urlEntry = null;
+    if (lookUpShort) {
+        // lookup short url
+        urlEntry = await urlModel.findOne({ "short": res });
+    } else {
+        // lookup long url
+        urlEntry = await urlModel.findOne({ "url": res });
+    }
     if (!urlEntry) {
         return false;
     }
@@ -16,24 +23,27 @@ async function lookUp(short) {
 
 // internal
 async function createEntry(url) {
+    var urlEntry
+    if (urlEntry = await lookUp(url, LOOKUP_LONGURL)) {
+        // already been shortened
+        return false;
+    }
     const nonce = crypto.randomBytes(32).toString('base64');
-    let short = getShortened(url, HASH);
+    let short = getShortened(url);
 
     while (await lookUp(short)) {
         url += nonce;
-        short = getShortened(url, HASH);
+        short = getShortened(url);
     }
 
-    const urlEntry = new urlModel({ "url": url, "short": short});
-    return (await urlEntry.save());
+    urlEntry = new urlModel({ "url": url, "short": short});
+    await urlEntry.save();
+    return urlEntry;
 }
 
 // url shortening logic
-function getShortened(url, chooseHash) {
-    if (chooseHash) {
-        return getHash(url);
-    }
-    return getBase62(url);
+function getShortened(url) {
+    return getHash(url);
 }
 
 // shortening using hash method + collision resolution (no bloom filter)
