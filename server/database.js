@@ -2,7 +2,7 @@ require('dotenv').config();
 const urlModel = require('./models/url.js');
 const crypto = require('node:crypto');
 
-const { verifyUrl } = require('./util.js');
+const { verifyUrl, cleanUrl } = require('./util.js');
 
 // constants
 const LOOKUP_LONGURL = false;
@@ -15,6 +15,8 @@ async function lookUp(res, lookUpShort=true) {
         urlEntry = await urlModel.findOne({ "short": res });
     } else {
         // lookup long url
+        res = cleanUrl(res);
+        console.log(res);
         urlEntry = await urlModel.findOne({ "url": res });
     }
     if (!urlEntry) {
@@ -25,6 +27,8 @@ async function lookUp(res, lookUpShort=true) {
 
 // internal
 async function createEntry(url) {
+    url = cleanUrl(url);
+    console.log(url);
     var urlEntry
     if (urlEntry = await lookUp(url, LOOKUP_LONGURL)) {
         // already been shortened

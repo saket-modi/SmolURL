@@ -27,9 +27,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // create new short link
-app.post('/api/:uri', async (req, res) => {
+app.post('/api/url', async (req, res) => {
     // handles requests where the uri already exists in db
-    const [urlEntry, newCreated] = await createEntry(req.params.uri);
+    const { url } = req.body;
+
+    if (!url) {
+        return res.status(400).send(`url not supplied in body`);
+    }
+
+    const [urlEntry, newCreated] = await createEntry(url);
     if (!urlEntry) {
         // bad url
         return res.status(400).send(`misformatted url or destination does not exist.`);
